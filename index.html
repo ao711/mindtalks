@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mind Talks</title>
+<meta name="theme-color" content="#2f6f73">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mind Talks">
+<meta name="application-name" content="Mind Talks">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<style>
+/* Layout: one calm column with a fixed "horizon" line as a visual anchor; three daily slots + an episode card */
+:root{
+  --bg:#eef1f2; --surface:#ffffff; --ink:#1d2a2e; --muted:#5d6c70; --line:#d3dadc;
+  --accent:#2f6f73; --accent-soft:#dbe9e9; --warm:#b5762f; --warm-soft:#f5e9d8; --done:#3d7a4f;
+  --display:"Readex Pro","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141b1d; --surface:#1c2528; --ink:#e3eaeb; --muted:#9aa9ac; --line:#2e3a3d;
+  --accent:#7fbfc2; --accent-soft:#213335; --warm:#e0a660; --warm-soft:#33291c; --done:#7cc391; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141b1d; --surface:#1c2528; --ink:#e3eaeb; --muted:#9aa9ac; --line:#2e3a3d;
+  --accent:#7fbfc2; --accent-soft:#213335; --warm:#e0a660; --warm-soft:#33291c; --done:#7cc391; color-scheme:dark}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.35}
+h1{font-size:1.75rem;font-weight:700}
+h2{font-size:1.2rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
+p{margin:0}
+.muted{color:var(--muted);font-size:.92rem}
+header{display:flex;flex-direction:column;gap:12px}
+.horizon{height:2px;background:var(--accent);border-radius:2px;opacity:.7}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.day{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.75rem;color:var(--muted)}
+.dot{width:100%;max-width:38px;aspect-ratio:1;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-variant-numeric:tabular-nums;font-size:.8rem;color:var(--ink);font-weight:600}
+.dot.p1{background:var(--accent-soft)} .dot.p2{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+.day.today .dot{outline:2px solid var(--warm);outline-offset:2px}
+section.slot{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.slot-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.when{font-size:.78rem;letter-spacing:.02em;color:var(--accent);font-weight:600}
+.mins{font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums}
+ol,ul{margin:0;padding-inline-start:1.2em;display:flex;flex-direction:column;gap:6px}
+.task{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:10px;background:var(--bg);cursor:pointer}
+.task input{width:22px;height:22px;margin-top:3px;accent-color:var(--done);flex:none}
+.task.is-done{opacity:.75}
+.task .t{min-width:0;display:flex;flex-direction:column;gap:4px}
+.script{background:var(--warm-soft);border-inline-start:3px solid var(--warm);padding:10px 12px;border-radius:6px;font-size:.95rem}
+button{font-family:var(--display);font-size:.95rem;border:0;border-radius:10px;padding:10px 16px;cursor:pointer;background:var(--accent);color:var(--surface);font-weight:600}
+button.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--warm);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+/* pacer */
+.pacer{display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 0}
+.ring{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;position:relative}
+.ring::before{content:"";position:absolute;inset:0;border-radius:50%;border:2px dashed var(--line)}
+.ball{width:150px;height:150px;border-radius:50%;background:var(--accent-soft);border:2px solid var(--accent);transform:scale(.45);transition:transform 4s ease-in-out;display:grid;place-items:center}
+.phase{position:absolute;font-family:var(--display);font-weight:600;font-size:1.05rem;text-align:center;line-height:1.3}
+.phase small{display:block;font-size:1.4rem;font-variant-numeric:tabular-nums}
+.timer{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem}
+/* countdown */
+.big{font-family:var(--display);font-size:2.2rem;font-weight:700;color:var(--warm);font-variant-numeric:tabular-nums}
+.seq{font-variant-numeric:tabular-nums;color:var(--muted);word-break:break-word;direction:ltr;text-align:right}
+/* ratings */
+.rate{display:flex;flex-direction:column;gap:6px}
+.rate label{display:flex;justify-content:space-between;font-weight:500}
+.rate output{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+textarea{width:100%;min-height:72px;font-family:var(--body);font-size:.95rem;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--bg);color:var(--ink);resize:vertical}
+/* episode card */
+.sos{background:var(--accent);color:var(--surface);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.sos h2{color:var(--surface)}
+.sos ol{gap:10px}
+.sos li::marker{font-family:var(--display);font-weight:700}
+.sos .q{background:rgba(255,255,255,.14);border-radius:6px;padding:2px 8px;display:inline}
+details{border-top:1px solid var(--line);padding-top:10px}
+summary{cursor:pointer;font-weight:600;color:var(--accent)}
+details[open] summary{margin-bottom:8px}
+.note{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion: reduce){.ball{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap" dir="rtl" lang="ar">
+  <header>
+    <h1>تدريبي اليومي</h1>
+    <p class="muted" id="todayLabel"></p>
+    <div class="horizon" aria-hidden="true"></div>
+    <div class="week" id="week" aria-label="آخر 7 أيام"></div>
+    <p class="muted">حوالي 20 دقيقة في اليوم على 3 مرات. الدايرة بتتملي كل ما تخلص تمارين اليوم.</p>
+  </header>
+
+  <!-- MORNING -->
+  <section class="slot">
+    <div class="slot-head"><div><span class="when">الصبح</span><h2>تنفس الزفير الطويل</h2></div><span class="mins">5 دقايق</span></div>
+    <p>4 ثواني شهيق من الأنف، 6 ثواني زفير بطيء من البُق. ده حوالي 6 أنفاس في الدقيقة، وهو المعدل اللي بيهدّي ضربات القلب أكتر حاجة. اتبع الدايرة.</p>
+    <div class="pacer">
+      <div class="ring"><div class="ball" id="ball"></div><div class="phase" id="phase">جاهز<small>&nbsp;</small></div></div>
+      <div class="timer" id="ptimer">5:00</div>
+      <div class="row"><button id="pStart">ابدأ</button><button class="ghost" id="pStop">وقّف</button></div>
+    </div>
+    <label class="task" for="t-breath"><input type="checkbox" id="t-breath" data-k="breath"><span class="t"><b>خلصت تمرين التنفس</b><span class="muted">بيتعلّم لوحده لما الـ 5 دقايق تخلص.</span></span></label>
+  </section>
+
+  <!-- MIDDAY -->
+  <section class="slot">
+    <div class="slot-head"><div><span class="when">الضهر</span><h2>تمرين التعوّد على الدوخة</h2></div><span class="mins">7 دقايق</span></div>
+    <p class="muted">في الدوخة الوظيفية المخ بيراقب التوازن زيادة عن اللزوم والجسم بيتشد. التمرين هنا إنك تدّي المخ جرعة صغيرة من اللي بيضايقه وانت مسترخي، لحد ما يتعود. لو عندك أخصائي علاج طبيعي للتوازن، امشي بالتمارين اللي هو مديهالك هنا.</p>
+    <label class="task" for="t-loose"><input type="checkbox" id="t-loose" data-k="loose"><span class="t"><b>دقيقة وقوف مرتخي</b><span>اقف، فك ركبك سنة صغيرة، نزّل كتافك، وسيب جسمك يتمرجح تمرجح طبيعي من غير ما تقاومه.</span></span></label>
+    <label class="task" for="t-walk"><input type="checkbox" id="t-walk" data-k="walk"><span class="t"><b>3 دقايق مشي وانت باصص حواليك</b><span>امشي في البيت أو الشارع من غير ما تمسك في حاجة، ولفّ راسك يمين وشمال بهدوء. خليك ماشي حتى لو الدوخة زادت شوية.</span></span></label>
+    <label class="task" for="t-visual"><input type="checkbox" id="t-visual" data-k="visual"><span class="t"><b>دقيقتين قدام حاجة بتدوّخك</b><span>سكرول على الموبايل، شاشة فيها حركة، أو سجادة منقوشة. قيّم الدوخة من 0 لـ 10 في الأول، واستنى لحد ما تنزل درجتين. ابدأ بحاجة تضايقك 3 أو 4 بس.</span></span></label>
+    <div class="script">قول لنفسك: «دي دوخة وظيفية. مخي بيراقب توازني زيادة. أنا فعلاً ثابت ورجلي على الأرض.»</div>
+  </section>
+
+  <!-- EVENING -->
+  <section class="slot">
+    <div class="slot-head"><div><span class="when">بالليل</span><h2>تمرين العقل</h2></div><span class="mins">7 دقايق</span></div>
+
+    <h3>العد التنازلي بطرح 7</h3>
+    <div class="row"><span class="big" id="cdStart">100</span><button class="ghost" id="cdNew">رقم جديد</button><button class="ghost" id="cdShow">اعرض الإجابات</button></div>
+    <p class="seq" id="cdSeq" hidden></p>
+    <label class="task" for="t-count"><input type="checkbox" id="t-count" data-k="count"><span class="t"><b>عدّيت من الرقم ده لحد أقل من 7</b><span class="muted">غيّر الرقم كل يوم علشان مخك ميحفظش.</span></span></label>
+
+    <h3>الفصل عن الفكرة</h3>
+    <p>الفكرة: انت مش هتحارب الفكرة ولا تصدقها، هتبص عليها من برا. التمرين على 3 خطوات:</p>
+    <ol>
+      <li>اكتب الفكرة اللي بتخوفك زي ما هي. مثلاً: «أنا هقع».</li>
+      <li>قولها تاني وابدأها بـ «أنا عندي فكرة إن...». يعني: «أنا عندي فكرة إني هقع».</li>
+      <li>وبعدين: «أنا ملاحظ إن عندي فكرة إني هقع». حس بالمسافة اللي بتكبر بينك وبينها.</li>
+    </ol>
+    <p class="muted">لو الفكرة رجعت، اديها اسم ثابت: «آه، فيلم الوقعة تاني»، وكمّل اللي بتعمله.</p>
+    <textarea id="thought" placeholder="أنا ملاحظ إن عندي فكرة إن..."></textarea>
+    <label class="task" for="t-defuse"><input type="checkbox" id="t-defuse" data-k="defuse"><span class="t"><b>اتمرنت على فكرة واحدة النهارده</b></span></label>
+
+    <h3>كلام مع العقل</h3>
+    <p class="muted">اختار جملة وقولها بصوت هادي 3 مرات وانت بتعمل زفير طويل. التكرار في الهدوء هو اللي بيخليها تطلع لوحدها وقت النوبة.</p>
+    <div class="script">«قلبي بيدق سريع عشان أدرينالين زيادة. القلب مصمم يستحمل ده، وهيهدى لوحده.»</div>
+    <div class="script">«ده إنذار كاذب. مش لازم أمنعه، هسيبه يعدّي.»</div>
+    <label class="task" for="t-talk"><input type="checkbox" id="t-talk" data-k="talk"><span class="t"><b>قلت الجملة 3 مرات</b></span></label>
+  </section>
+
+  <!-- RATING -->
+  <section class="slot">
+    <div class="slot-head"><h2>تقييم اليوم</h2><span class="mins">دقيقة</span></div>
+    <div class="rate"><label for="rDizzy">الدوخة النهارده <output id="oDizzy">–</output></label><input type="range" id="rDizzy" min="0" max="10" step="1"></div>
+    <div class="rate"><label for="rAnx">القلق / ضربات القلب <output id="oAnx">–</output></label><input type="range" id="rAnx" min="0" max="10" step="1"></div>
+    <p class="muted">0 = مفيش خالص، 10 = أسوأ حاجة. الأرقام دي مفيدة تاخدها معاك لجلسة الـ CBT.</p>
+  </section>
+
+  <!-- EPISODE -->
+  <section class="sos">
+    <h2>وقت النوبة</h2>
+    <ol>
+      <li><b>سمّيها:</b> <span class="q">«دي نوبة بانك، وهتعدّي»</span></li>
+      <li><b>زفير طويل:</b> 4 شهيق، 6 زفير، 5 مرات.</li>
+      <li><b>افصل:</b> <span class="q">«أنا ملاحظ إن عندي فكرة إن...»</span></li>
+      <li><b>اشغل مخك:</b> عد من 100 بطرح 7.</li>
+      <li><b>كمّل اللي كنت بتعمله</b> لو تقدر، حتى لو ببطء. الهروب بيعلّم المخ إن الموقف كان خطر فعلاً.</li>
+    </ol>
+  </section>
+
+  <details>
+    <summary>إزاي التمارين دي مرتبطة بالعلاج</summary>
+    <ul>
+      <li><b>الزفير الطويل</b> بيهدّي الجهاز العصبي ويقلل ضربات القلب، وده بيساعد في البانك وفي الشد العضلي اللي بيزوّد الدوخة.</li>
+      <li><b>تمارين التعوّد</b> هي نفس فكرة العلاج الطبيعي للتوازن في الـ PPPD: تعرّض تدريجي لحد ما المخ يبطّل يعتبر الحركة خطر.</li>
+      <li><b>الفصل عن الفكرة والكلام مع العقل</b> هما أدوات من الـ CBT، فاتفق مع المعالج إنك بتتمرن عليهم واطلب منه يعدّل الجمل على مقاسك.</li>
+    </ul>
+  </details>
+
+  <p class="note">لو جالك ألم صدر من نوع جديد، أو إغماء، أو ضربات قلب سريعة وانت مرتاح ومش قلقان، كلّم دكتورك. البيانات هنا محفوظة على الجهاز ده بس.</p>
+</div>
+
+<script>
+(function(){
+  const pad=n=>String(n).padStart(2,'0');
+  const keyOf=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  const now=new Date(); const TODAY=keyOf(now);
+  const TASKS=['breath','loose','walk','visual','count','defuse','talk'];
+  function load(k){try{return JSON.parse(localStorage.getItem('dt:'+k))||{}}catch(e){return {}}}
+  function save(k,v){try{localStorage.setItem('dt:'+k,JSON.stringify(v))}catch(e){}}
+  let st=load(TODAY); st.done=st.done||{};
+
+  const days=['الحد','الاتنين','التلات','الأربع','الخميس','الجمعة','السبت'];
+  const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  document.getElementById('todayLabel').textContent='النهارده '+days[now.getDay()]+' '+now.getDate()+' '+months[now.getMonth()];
+
+  function renderWeek(){
+    const w=document.getElementById('week'); w.innerHTML='';
+    for(let i=6;i>=0;i--){
+      const d=new Date(now); d.setDate(now.getDate()-i);
+      const k=keyOf(d); const s=k===TODAY?st:load(k);
+      const n=TASKS.filter(t=>s.done&&s.done[t]).length;
+      const el=document.createElement('div'); el.className='day'+(k===TODAY?' today':'');
+      const cls=n===0?'':(n>=TASKS.length?'p2':'p1');
+      el.innerHTML='<div class="dot '+cls+'">'+n+'</div><span>'+days[d.getDay()]+'</span>';
+      el.title=n+' من '+TASKS.length;
+      w.appendChild(el);
+    }
+  }
+  function persist(){save(TODAY,st);renderWeek()}
+
+  document.querySelectorAll('input[data-k]').forEach(cb=>{
+    const k=cb.dataset.k; cb.checked=!!st.done[k];
+    cb.closest('.task').classList.toggle('is-done',cb.checked);
+    cb.addEventListener('change',()=>{st.done[k]=cb.checked;cb.closest('.task').classList.toggle('is-done',cb.checked);persist()});
+  });
+  function markDone(k){const cb=document.querySelector('input[data-k="'+k+'"]');cb.checked=true;st.done[k]=true;cb.closest('.task').classList.add('is-done');persist()}
+
+  // ratings
+  [['rDizzy','oDizzy','dizzy'],['rAnx','oAnx','anx']].forEach(([r,o,k])=>{
+    const R=document.getElementById(r),O=document.getElementById(o);
+    if(st[k]!=null){R.value=st[k];O.textContent=st[k]}else{R.value=5}
+    R.addEventListener('input',()=>{st[k]=+R.value;O.textContent=R.value;persist()});
+  });
+  const ta=document.getElementById('thought'); ta.value=st.thought||'';
+  ta.addEventListener('input',()=>{st.thought=ta.value;save(TODAY,st)});
+
+  // pacer
+  const ball=document.getElementById('ball'),phase=document.getElementById('phase'),ptimer=document.getElementById('ptimer');
+  const TOTAL=300; let timer=null,left=TOTAL,ph=0,sec=0;
+  const fmt=s=>Math.floor(s/60)+':'+pad(s%60);
+  function setPhase(p){ph=p;sec=p===0?4:6;
+    ball.style.transitionDuration=(p===0?4:6)+'s';
+    ball.style.transform=p===0?'scale(1)':'scale(.45)';
+    show()}
+  function show(){phase.innerHTML=(ph===0?'شهيق':'زفير')+'<small>'+sec+'</small>'}
+  function tick(){
+    left--; sec--; ptimer.textContent=fmt(left);
+    if(left<=0){stop();phase.innerHTML='أحسنت<small>&nbsp;</small>';markDone('breath');return}
+    if(sec<=0) setPhase(ph===0?1:0); else show();
+  }
+  function stop(){clearInterval(timer);timer=null;ball.style.transitionDuration='1s';ball.style.transform='scale(.45)'}
+  document.getElementById('pStart').onclick=()=>{if(timer)return; if(left<=0)left=TOTAL; ptimer.textContent=fmt(left); setPhase(0); timer=setInterval(tick,1000)};
+  document.getElementById('pStop').onclick=()=>{stop();phase.innerHTML='متوقف<small>&nbsp;</small>'};
+
+  // countdown
+  const cdS=document.getElementById('cdStart'),cdQ=document.getElementById('cdSeq'),cdB=document.getElementById('cdShow');
+  let start=st.cd||100;
+  function renderCd(){cdS.textContent=start;const a=[];for(let n=start;n>=0;n-=7)a.push(n);cdQ.textContent=a.join('، ')}
+  renderCd();
+  document.getElementById('cdNew').onclick=()=>{start=100+Math.floor(Math.random()*150);st.cd=start;save(TODAY,st);cdQ.hidden=true;cdB.textContent='اعرض الإجابات';renderCd()};
+  cdB.onclick=()=>{cdQ.hidden=!cdQ.hidden;cdB.textContent=cdQ.hidden?'اعرض الإجابات':'اخفي الإجابات'};
+
+  renderWeek();
+})();
+</script>
+
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+</body>
+</html>
