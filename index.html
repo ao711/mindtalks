@@ -101,7 +101,7 @@ details[open] summary{margin-bottom:8px}
   <!-- MORNING -->
   <section class="slot">
     <div class="slot-head"><div><span class="when">الصبح</span><h2>تنفس الزفير الطويل</h2></div><span class="mins">5 دقايق</span></div>
-    <p>4 ثواني شهيق من الأنف، 5 ثواني اكتم نفسك بهدوء، و6 ثواني زفير بطيء من البُق. يعني 4 أنفاس في الدقيقة. اتبع الدايرة.</p>
+    <p>4 ثواني شهيق من الأنف، 6 ثواني زفير بطيء من البُق، وبعدها 5 ثواني راحة قبل النفس اللي بعده. يعني 4 أنفاس في الدقيقة. اتبع الدايرة.</p>
     <div class="pacer">
       <div class="ring"><div class="ball" id="ball"></div><div class="phase" id="phase">جاهز<small>&nbsp;</small></div></div>
       <div class="timer" id="ptimer">5:00</div>
@@ -228,9 +228,9 @@ details[open] summary{margin-bottom:8px}
   const ball=document.getElementById('ball'),phase=document.getElementById('phase'),ptimer=document.getElementById('ptimer');
   const TOTAL=300; let timer=null,left=TOTAL,ph=0,sec=0;
   const fmt=s=>Math.floor(s/60)+':'+pad(s%60);
-  const PH=[{n:'شهيق',s:4,sc:1},{n:'اكتم',s:5,sc:1},{n:'زفير',s:6,sc:.45}];
+  const PH=[{n:'شهيق',s:4,sc:1},{n:'زفير',s:6,sc:.45},{n:'راحة',s:5,sc:.45}];
   function setPhase(p){ph=p;sec=PH[p].s;
-    if(p!==1){ball.style.transitionDuration=PH[p].s+'s';ball.style.transform='scale('+PH[p].sc+')'}
+    if(p!==2){ball.style.transitionDuration=PH[p].s+'s';ball.style.transform='scale('+PH[p].sc+')'}
     show()}
   function show(){phase.innerHTML=PH[ph].n+'<small>'+sec+'</small>'}
   function tick(){
